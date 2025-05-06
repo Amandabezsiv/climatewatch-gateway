@@ -5,7 +5,17 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "dotenv>=0.9.9",
     "fastapi>=0.115.12",
     "httpx>=0.28.1",
+    "jose>=1.0.0",
+    "numpy>=2.2.5",
+    "openmeteo-requests>=1.4.0",
+    "passlib[bcrypt]>=1.7.4",
+    "python-jose>=3.4.0",
+    "python-multipart>=0.0.20",
+    "requests-cache>=1.2.1",
+    "retry-requests>=2.0.0",
+    "sqlalchemy>=2.0.40",
     "uvicorn>=0.34.2",
 ]

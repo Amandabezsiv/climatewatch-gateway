@@ -1,33 +1,39 @@
-from fastapi import FastAPI, Request
-import httpx
+from fastapi import FastAPI
+from .routes import router
+from .db import init_db
+from .auth_routes import auth_router
+from fastapi.openapi.utils import get_openapi
 
 app = FastAPI(title="ClimateWatch API Gateway")
 
-
-@app.get("/api/weather")
-async def get_weather(city: str):
-    async with httpx.AsyncClient() as client:
-        response = await client.get(f"http://localhost:8001/weather?city={city}")
-        return response.json()
+init_db()
+app.include_router(router)
+app.include_router(auth_router)
 
 
-@app.post("/api/favorites/add")
-async def add_favorite(request: Request):
-    data = await request.json()
-    async with httpx.AsyncClient() as client:
-        response = await client.post("http://localhost:8002/favorites/add", json=data)
-        return response.json()
+def custom_openapi():
+    if app.openapi_schema:
+        return app.openapi_schema
+    openapi_schema = get_openapi(
+        title=app.title,
+        version="1.0.0",
+        description="API Gateway for ClimateWatch",
+        routes=app.routes,
+    )
+
+    openapi_schema["components"]["securitySchemes"] = {
+        "BearerAuth": {
+            "type": "http",
+            "scheme": "bearer",
+            "bearerFormat": "JWT",
+        }
+    }
+    # Aplica globalmente
+    for path in openapi_schema["paths"].values():
+        for method in path.values():
+            method.setdefault("security", []).append({"BearerAuth": []})
+    app.openapi_schema = openapi_schema
+    return app.openapi_schema
 
 
-@app.get("/api/favorites/list")
-async def list_favorites():
-    async with httpx.AsyncClient() as client:
-        response = await client.get("http://localhost:8002/favorites/list")
-        return response.json()
-
-
-@app.get("/api/alerts/check")
-async def check_alerts():
-    async with httpx.AsyncClient() as client:
-        response = await client.get("http://localhost:8003/alerts/check")
-        return response.json()
+app.openapi = custom_openapi
