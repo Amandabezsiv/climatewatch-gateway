@@ -1,19 +1,6 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
+from favorites_service import models, db, routes
 
 app = FastAPI(title="Favorites Service")
-
-favorites = []
-
-
-@app.post("/favorites/add")
-async def add_favorite(request: Request):
-    data = await request.json()
-    city = data.get("city")
-    if city and city not in favorites:
-        favorites.append(city)
-    return {"favorites": favorites}
-
-
-@app.get("/favorites/list")
-def list_favorites():
-    return {"favorites": favorites}
+db.Base.metadata.create_all(bind=db.engine)
+app.include_router(routes.router)
