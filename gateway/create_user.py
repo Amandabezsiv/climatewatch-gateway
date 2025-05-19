@@ -1,11 +1,14 @@
 # create_user.py
 from getpass import getpass
 from gateway import db, models, auth
+from models import User
+from db import SessionLocal
+from auth import hash_password
 
 
 def create_user():
     db.init_db()
-    session = db.SessionLocal()
+    session = SessionLocal()
 
     username = input("Enter username: ").strip()
     password = getpass("Enter password: ").strip()
@@ -14,8 +17,8 @@ def create_user():
         print("User already exists.")
         return
 
-    hashed = auth.hash_password(password)
-    user = models.User(username=username, hashed_password=hashed)
+    hashed = hash_password(password)
+    user = User(username=username, hashed_password=hashed)
     session.add(user)
     session.commit()
     print(f"User '{username}' created.")

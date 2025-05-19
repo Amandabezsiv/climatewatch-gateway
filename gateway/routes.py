@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Request, Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
-from .auth import SECRET_KEY, ALGORITHM
+from auth import SECRET_KEY, ALGORITHM
 import httpx
 
 router = APIRouter()
