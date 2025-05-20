@@ -1,6 +1,7 @@
 from fastapi import FastAPI
-from favorites_service import models, db, routes
+from db import Base, engine
+from routes import router
 
 app = FastAPI(title="Favorites Service")
-db.Base.metadata.create_all(bind=db.engine)
-app.include_router(routes.router)
+Base.metadata.create_all(bind=engine)
+app.include_router(router)

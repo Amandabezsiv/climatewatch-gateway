@@ -1,0 +1,39 @@
+version: "3.9"
+
+services:
+  gateway:
+    build: ./gateway
+    container_name: gateway
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./gateway/.env
+    depends_on:
+      - weather_service
+      - favorites_service
+      - alerts_service
+
+  weather_service:
+    build: ./weather_service
+    container_name: weather_service
+    ports:
+      - "8001:8001"
+    env_file:
+      - ./weather_service/.env
+
+  favorites_service:
+    build: ./favorites_service
+    container_name: favorites_service
+    ports:
+      - "8002:8002"
+    volumes:
+      - favorites_data:/app
+
+  alerts_service:
+    build: ./alerts_service
+    container_name: alerts_service
+    ports:
+      - "8003:8003"
+
+volumes:
+  favorites_data:

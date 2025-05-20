@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Query, HTTPException
-from .alerts import check_alerts
-from .weather_client import get_forecast_from_weather_service
+from alerts import check_alerts
+from weather_client import get_forecast_from_weather_service
 
 app = FastAPI(title="Alerts Service")
 

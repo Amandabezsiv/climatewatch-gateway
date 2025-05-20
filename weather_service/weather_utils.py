@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 import openmeteo_requests
 import requests_cache
 from retry_requests import retry
@@ -56,8 +56,7 @@ def fetch_weather_data(lat: float, lon: float) -> list[dict]:
     for i, t in enumerate(timestamps):
         weather_data.append(
             {
-                "timestamp": datetime.fromtimestamp(datetime.timezone.utc).isoformat()
-                + "Z",
+                "timestamp": datetime.fromtimestamp(t, timezone.utc).isoformat() + "Z",
                 "temperature_2m": float(hourly.Variables(0).ValuesAsNumpy()[i]),
                 "rain": float(hourly.Variables(1).ValuesAsNumpy()[i]),
                 "showers": float(hourly.Variables(2).ValuesAsNumpy()[i]),
