@@ -2,6 +2,10 @@
 
 ClimateWatch Gateway is a microservices-based project that provides weather information, favorites management, and weather alerts through a unified API gateway.
 
+## Architecture diagram
+
+![Architecture Diagram](diagram.png)
+
 ## Project Structure
 
 - **gateway/**: API Gateway built with FastAPI, routes requests to the appropriate services.
@@ -60,6 +64,21 @@ uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ## API Endpoints
 
 - `GET /api/weather?city=CityName` — Get weather for a city.
-- `POST /api/favorites/add` — Add a city to favorites. JSON body: `{ "city": "CityName" }`
-- `GET /api/favorites/list` — List favorite cities.
-- `GET /api/alerts/check` — Get weather alerts.
+
+- `POST /api/favorites/add` — Add a city to the authenticated user's favorites.  
+  JSON body:  
+  ```json
+  { "city": "CityName" }
+  ```
+  The `user` field is automatically filled by the gateway using the JWT token.
+
+- `GET /api/favorites/list` — List favorite cities for the authenticated user.
+
+- `GET /api/alerts/check` — Get weather alerts for all favorite cities of the authenticated user.  
+  Returns a JSON object where each key is a favorite city and the value is a list of alerts, for example:
+  ```json
+  {
+    "Fortaleza": ["High probability of rain in the next few hours."],
+    "Recife": []
+  }
+  ```
