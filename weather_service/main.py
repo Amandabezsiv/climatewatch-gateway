@@ -1,6 +1,6 @@
-from fastapi import FastAPI, HTTPException
-from fastapi import APIRouter, Query
+from fastapi import FastAPI, HTTPException, APIRouter, Query
 from weather_utils import fetch_weather_data, get_coordinates_by_city
+
 
 app = FastAPI(title="Weather Service")
 

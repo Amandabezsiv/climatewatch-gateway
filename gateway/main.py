@@ -1,10 +1,13 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from routes import router
 from db import init_db
 from auth_routes import auth_router
 from fastapi.openapi.utils import get_openapi
+from fastapi_mcp import FastApiMCP, AuthConfig
+from routes import verify_token
 
 app = FastAPI(title="ClimateWatch API Gateway")
+
 
 init_db()
 app.include_router(router)
@@ -35,5 +38,23 @@ def custom_openapi():
     app.openapi_schema = openapi_schema
     return app.openapi_schema
 
+
+mcp = FastApiMCP(
+    app,
+    include_operations=[
+        "weather-by-city",
+        "add-favorite",
+        "list-favorites",
+        "check-alerts",
+        "register-user",
+        "login-user",
+    ],
+    name="Weather API MCP",
+    description="MCP server for the Weather API",
+    describe_full_response_schema=True,
+    describe_all_responses=True,
+)
+
+mcp.mount()
 
 app.openapi = custom_openapi

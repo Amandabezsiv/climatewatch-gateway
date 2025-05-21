@@ -5,6 +5,7 @@ from auth import SECRET_KEY, ALGORITHM
 import httpx
 from schemas import FavoriteAddRequest
 
+
 router = APIRouter()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
 
@@ -17,7 +18,7 @@ def verify_token(token: str = Depends(oauth2_scheme)):
         raise HTTPException(status_code=401, detail="Invalid token")
 
 
-@router.get("/api/weather")
+@router.get("/api/weather", operation_id="weather-by-city")
 async def get_weather(city: str):
     try:
         async with httpx.AsyncClient() as client:
@@ -29,7 +30,7 @@ async def get_weather(city: str):
         raise HTTPException(502, "Weather service unavailable")
 
 
-@router.post("/api/favorites/add")
+@router.post("/api/favorites/add", operation_id="add-favorite")
 async def add_favorite(favorite: FavoriteAddRequest, user=Depends(verify_token)):
     data = favorite.dict()
     data["user"] = user  # Preenche o usuário autenticado
@@ -38,14 +39,14 @@ async def add_favorite(favorite: FavoriteAddRequest, user=Depends(verify_token))
         return response.json()
 
 
-@router.get("/api/favorites/list")
+@router.get("/api/favorites/list", operation_id="list-favorites")
 async def list_favorites(user=Depends(verify_token)):
     async with httpx.AsyncClient() as client:
         response = await client.get(f"http://localhost:8002/favorites/list?user={user}")
         return response.json()
 
 
-@router.get("/api/alerts/check")
+@router.get("/api/alerts/check", operation_id="check-alerts")
 async def check_alerts(user=Depends(verify_token)):
     async with httpx.AsyncClient() as client:
         # Busca as cidades favoritas do usuário
