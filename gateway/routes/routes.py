@@ -4,7 +4,15 @@ from jose import JWTError, jwt
 from auth import SECRET_KEY, ALGORITHM
 import httpx
 from schemas import FavoriteAddRequest
+from fastapi import Request
+from dotenv import load_dotenv
+import os
 
+load_dotenv()  # Carrega variáveis do .env
+
+WEATHER_SERVICE_URL = os.getenv("WEATHER_SERVICE_URL")
+FAVORITES_SERVICE_URL = os.getenv("FAVORITES_SERVICE_URL")
+ALERTS_SERVICE_URL = os.getenv("ALERTS_SERVICE_URL")
 
 router = APIRouter()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
@@ -23,7 +31,7 @@ async def get_weather(city: str):
     try:
         async with httpx.AsyncClient() as client:
             response = await client.get(
-                f"http://localhost:8001/weather-by-city?city={city}"
+                f"{WEATHER_SERVICE_URL}/weather-by-city?city={city}"
             )
             return response.json()
     except Exception:
@@ -31,35 +39,40 @@ async def get_weather(city: str):
 
 
 @router.post("/api/favorites/add", operation_id="add-favorite")
-async def add_favorite(favorite: FavoriteAddRequest, user=Depends(verify_token)):
+async def add_favorite(
+    favorite: FavoriteAddRequest, request: Request, user=Depends(verify_token)
+):
+    print("Authorization header received:", request.headers.get("authorization"))
     data = favorite.dict()
-    data["user"] = user  # Preenche o usuário autenticado
+    data["user"] = user
     async with httpx.AsyncClient() as client:
-        response = await client.post("http://localhost:8002/favorites/add", json=data)
+        response = await client.post(
+            f"{FAVORITES_SERVICE_URL}/favorites/add", json=data
+        )
         return response.json()
 
 
 @router.get("/api/favorites/list", operation_id="list-favorites")
 async def list_favorites(user=Depends(verify_token)):
     async with httpx.AsyncClient() as client:
-        response = await client.get(f"http://localhost:8002/favorites/list?user={user}")
+        response = await client.get(
+            f"{FAVORITES_SERVICE_URL}/favorites/list?user={user}"
+        )
         return response.json()
 
 
 @router.get("/api/alerts/check", operation_id="check-alerts")
 async def check_alerts(user=Depends(verify_token)):
     async with httpx.AsyncClient() as client:
-        # Busca as cidades favoritas do usuário
         fav_response = await client.get(
-            f"http://localhost:8002/favorites/list?user={user}"
+            f"{FAVORITES_SERVICE_URL}/favorites/list?user={user}"
         )
         favorites = fav_response.json()
-        # Supondo que cada favorito tem um campo 'city'
         cities = [fav["city"] for fav in favorites if "city" in fav]
         alerts_result = {}
         for city in cities:
             alert_response = await client.get(
-                f"http://localhost:8003/alerts/check?city={city}"
+                f"{ALERTS_SERVICE_URL}/alerts/check?city={city}"
             )
             alert_data = alert_response.json()
             alerts_result[city] = alert_data.get("alerts", [])

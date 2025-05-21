@@ -1,3 +1,4 @@
+.cache.sqlite
 .env
 users.db
 # Python-generated files

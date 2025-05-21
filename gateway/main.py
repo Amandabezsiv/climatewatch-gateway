@@ -1,10 +1,10 @@
 from fastapi import FastAPI, Depends
-from routes import router
+from routes.routes import router, verify_token
 from db import init_db
-from auth_routes import auth_router
+from routes.auth_routes import auth_router
 from fastapi.openapi.utils import get_openapi
 from fastapi_mcp import FastApiMCP, AuthConfig
-from routes import verify_token
+
 
 app = FastAPI(title="ClimateWatch API Gateway")
 
